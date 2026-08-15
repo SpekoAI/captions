@@ -1,0 +1,36 @@
+[project]
+name = "speko-captions"
+version = "0.1.0"
+description = "Agent-first CLI that turns a talking video into a social-ready 9:16 clip with word-level karaoke captions. Transcription by the Speko API, rendering by ffmpeg."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Speko", email = "bek@speko.ai" }]
+keywords = ["captions", "subtitles", "ffmpeg", "speech-to-text", "shorts", "tiktok", "video"]
+dependencies = [
+    "faster-whisper>=1.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[project.scripts]
+speko-captions = "speko_captions.cli:main"
+
+[project.urls]
+Homepage = "https://captions.speko.ai"
+Repository = "https://github.com/SpekoAI/captions"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/speko_captions"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py310"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

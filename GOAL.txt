@@ -1,0 +1,100 @@
+GOAL: Ship "Speko Captions" - an open-source, agent-first CLI + Claude Code
+skill that turns any talking video into a social-ready 9:16 clip with
+word-level karaoke captions, using Speko /v1/transcribe for transcript truth
+and ffmpeg for rendering - public on GitHub (SpekoAI/captions) with a
+one-page landing at captions.speko.ai in the live speko.ai design language.
+
+DONE MEANS: a stranger with ffmpeg, Python/uv, and a Speko API key clones the
+repo (or runs uvx), follows the README for <=10 steps, and gets a captioned
+1080x1920 mp4 from their own video on the first try in <=10 minutes. An AI
+agent reading SKILL.md alone drives the same pipeline end to end, including a
+subagent QA pass over extracted frames. The landing page is live, reads like
+speko.ai (navy #0e1512, accent #2f6ad1, Geist, minimal), links the repo, and
+sends people to speko.ai for a key. Zero slop anywhere. All true at once, or
+not done.
+
+AUDIT CRITERIA (hostile auditor; every V needs the named evidence or FAILS;
+no partial credit; spend unlimited tokens/time; run every check for real):
+
+V1 PIPELINE: `speko-captions render <video> --config <cfg>` on the bundled
+  sample completes on a clean clone with only ffmpeg + uv + SPEKO_API_KEY set
+  and writes out/<name>.mp4. Evidence: full command transcript + ffprobe
+  showing 1080x1920, h264, yuv420p, aac 48kHz, faststart. Any manual repo
+  edit needed to make the sample run = FAIL.
+
+V2 SPEKO STT TRUTH: transcript text comes from POST $SPEKO_API_BASE
+  /v1/transcribe (Bearer SPEKO_API_KEY, X-Speko-Intent, X-Speko-Constraints
+  pin support). Evidence: grep of the request code + one live run log line
+  showing provider/model returned by the API. faster-whisper appears ONLY for
+  word-level timing alignment and the README says so explicitly. A code path
+  that uses whisper text as final transcript when the API succeeds = FAIL.
+
+V3 KARAOKE RENDER: burned captions show word-level highlight (active word in
+  accent color + scale pop), phrase-aware pages (max words + max chars +
+  gap + punctuation breaks), no two pages visible simultaneously. Evidence:
+  >=3 extracted frames at word boundaries from the sample render showing the
+  moving highlight; the page-overlap regression test (V6) covers the
+  simultaneity claim.
+
+V4 CONFIG SURFACE: hook text, speaker tags, filler-strip times, caption y,
+  colors, font, words-per-page are all settable in one documented per-video
+  config file (JSON). Evidence: schema documented in README or docs/; render
+  the sample twice with a changed hook + changed accent color and show both
+  frames differ accordingly.
+
+V5 AGENT-FIRST SKILL: SKILL.md at repo root is a complete Claude Code skill:
+  trigger description, pipeline steps (probe -> transcribe -> align ->
+  configure -> render -> QA), and a MANDATORY subagent QA step (extract
+  frames, review placement/overlap/legibility, loop until clean). Evidence:
+  a fresh agent session (or documented dry-run transcript) that produces the
+  sample output following SKILL.md only, without reading engine source.
+
+V6 TESTS: `uv run pytest` green on a clean clone with NO network and NO
+  ffmpeg: golden-file test for ASS generation from a fixture word list;
+  unit tests for page-breaking (max words/chars, gap break, punctuation
+  break, no page overlap) and filler-strip merge. Evidence: pytest output +
+  the golden .ass fixture in tests/.
+
+V7 CI: GitHub Actions workflow runs lint (ruff) + tests on push/PR; main is
+  green. Evidence: green Actions run URL on the initial main commit; badge
+  in README points at the workflow.
+
+V8 PUBLIC REPO: github.com/SpekoAI/captions is public, MIT LICENSE, README
+  quickstart <=10 numbered steps (install ffmpeg; get a Speko API key at
+  speko.ai - link; set SPEKO_API_KEY; run). Evidence: repo URL public in
+  incognito curl; step count; `grep -ri voiceforge` = 0 hits; rebrand-guard
+  scan clean logged.
+
+V9 LANDING: captions.speko.ai returns 200 HTML: bg #0e1512, accent #2f6ad1,
+  Geist font, one h1, install/quickstart block, one demo (before/after or
+  frame strip), GitHub link, "get a Speko API key" -> speko.ai. Deslop bar:
+  no badge rows, no testimonial slop, no feature-adjective soup, no emoji,
+  no em/en dashes, plain ASCII copy. Evidence: curl + screenshot + grep.
+  ENG-DONE fallback: live *.vercel.app URL + the exact CNAME/DNS record
+  handed to Bek; full DONE only when the subdomain resolves (EXTERNAL).
+
+V10 NO SLOP: README + landing + SKILL.md pass: zero emoji, zero em/en
+  dashes, zero "honest/honestly", zero "seamless/powerful/blazingly",
+  active voice, no wall-of-text paragraphs >6 sentences. Evidence: grep
+  list output + read-through verdict.
+
+V11 SPEKO PROMOTION: README top section and landing each contain exactly
+  one factual credit line that Speko's API does the transcription, linking
+  speko.ai. Evidence: grep. Overclaiming (e.g. "the most accurate STT") =
+  FAIL against the claims rails.
+
+V12 CLEAN SAMPLE: bundled sample is synthetic or owned footage (script may
+  generate it via ffmpeg/TTS); the Boris/party clips do NOT appear anywhere
+  in the public repo or site. Evidence: repo file listing + site assets
+  audit. Any private-event footage in public artifacts = FAIL.
+
+OUT OF SCOPE for the build loop (EXTERNAL, not agent-self-satisfiable):
+- Cloudflare DNS record for captions.speko.ai (Bek or a CF token).
+- Vercel project creation/link under the Speko team if no token on this VM;
+  the loop stops at ENG-DONE (V9 fallback) and hands exact commands.
+- npm/PyPI publication (not required for DONE).
+
+VERDICT QUESTION: would you point a Hacker News thread at
+captions.speko.ai and the repo today, with Speko's name on both, and expect
+a stranger to succeed on first try? Anything but an unqualified yes = not
+done; state exactly what is missing.

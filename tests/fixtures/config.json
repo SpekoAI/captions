@@ -1,0 +1,7 @@
+{
+  "hook": {"text": "MY AGENTS CALL ME\\NON THE PHONE", "seconds": 2.2, "y": 300, "size": 64},
+  "tags": [{"text": "SAMPLE SPEAKER", "subtext": "FIXTURE TAG", "start": 8.0, "dur": 2.0}],
+  "filler_strip": [0.9],
+  "overrides": [{"from": ["plot", "code"], "to": ["Claude", "Code"]}],
+  "case_keep": ["IDEs"]
+}

@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.venv/
+out/
+samples/*.mp4
+samples/*.pcm
+dist/
+.pytest_cache/
+.ruff_cache/
+uv.lock

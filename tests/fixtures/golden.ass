@@ -1,0 +1,40 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+WrapStyle: 2
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Cap,Geist Black,88,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,0,0,0,0,100,100,1,0,1,7,2,5,60,60,0,1
+Style: Hook,Geist Black,64,&H00FFFFFF,&H00FFFFFF,&H00000000,&H80000000,0,0,0,0,100,100,1,0,1,6,2,5,60,60,0,1
+Style: Tag,Geist SemiBold,40,&H00FFFFFF,&H00FFFFFF,&H00000000,&HFF000000,0,0,0,0,100,100,0.5,0,1,4,1,5,60,60,0,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 1,0:00:00.00,0:00:02.20,Hook,,0,0,0,,{\pos(540,300)\fad(120,150)}MY AGENTS CALL ME\NON THE PHONE
+Dialogue: 1,0:00:08.00,0:00:10.00,Tag,,0,0,0,,{\pos(540,1020)\fad(150,150)}SAMPLE SPEAKER \N{\fs32}FIXTURE TAG
+Dialogue: 0,0:00:00.00,0:00:00.14,Cap,,0,0,0,,{\pos(540,1150)}{\c&H00F8BD38&\fscx104\fscy104\t(0,70,\fscx108\fscy108)}I{\r} {\c&H00FFFFFF&}MAKE{\r} {\c&H00FFFFFF&}MY{\r} {\c&H00FFFFFF&}AGENTS{\r}
+Dialogue: 0,0:00:00.14,0:00:00.32,Cap,,0,0,0,,{\pos(540,1150)}{\c&H00FFFFFF&}I{\r} {\c&H00F8BD38&\fscx104\fscy104\t(0,70,\fscx108\fscy108)}MAKE{\r} {\c&H00FFFFFF&}MY{\r} {\c&H00FFFFFF&}AGENTS{\r}
+Dialogue: 0,0:00:00.32,0:00:00.46,Cap,,0,0,0,,{\pos(540,1150)}{\c&H00FFFFFF&}I{\r} {\c&H00FFFFFF&}MAKE{\r} {\c&H00F8BD38&\fscx104\fscy104\t(0,70,\fscx108\fscy108)}MY{\r} {\c&H00FFFFFF&}AGENTS{\r}
+Dialogue: 0,0:00:00.46,0:00:01.20,Cap,,0,0,0,,{\pos(540,1150)}{\c&H00FFFFFF&}I{\r} {\c&H00FFFFFF&}MAKE{\r} {\c&H00FFFFFF&}MY{\r} {\c&H00F8BD38&\fscx104\fscy104\t(0,70,\fscx108\fscy108)}AGENTS{\r}
+Dialogue: 0,0:00:01.20,0:00:01.47,Cap,,0,0,0,,{\pos(540,1150)}{\c&H00F8BD38&\fscx104\fscy104\t(0,70,\fscx108\fscy108)}CALL{\r} {\c&H00FFFFFF&}ME{\r} {\c&H00FFFFFF&}ON{\r} {\c&H00FFFFFF&}THE{\r}
+Dialogue: 0,0:00:01.47,0:00:01.62,Cap,,0,0,0,,{\pos(540,1150)}{\c&H00FFFFFF&}CALL{\r} {\c&H00F8BD38&\fscx104\fscy104\t(0,70,\fscx108\fscy108)}ME{\r} {\c&H00FFFFFF&}ON{\r} {\c&H00FFFFFF&}THE{\r}
+Dialogue: 0,0:00:01.62,0:00:01.74,Cap,,0,0,0,,{\pos(540,1150)}{\c&H00FFFFFF&}CALL{\r} {\c&H00FFFFFF&}ME{\r} {\c&H00F8BD38&\fscx104\fscy104\t(0,70,\fscx108\fscy108)}ON{\r} {\c&H00FFFFFF&}THE{\r}
+Dialogue: 0,0:00:01.74,0:00:01.84,Cap,,0,0,0,,{\pos(540,1150)}{\c&H00FFFFFF&}CALL{\r} {\c&H00FFFFFF&}ME{\r} {\c&H00FFFFFF&}ON{\r} {\c&H00F8BD38&\fscx104\fscy104\t(0,70,\fscx108\fscy108)}THE{\r}
+Dialogue: 0,0:00:01.84,0:00:02.42,Cap,,0,0,0,,{\pos(540,1150)}{\c&H00F8BD38&\fscx104\fscy104\t(0,70,\fscx108\fscy108)}PHONE{\r}
+Dialogue: 0,0:00:03.10,0:00:03.45,Cap,,0,0,0,,{\pos(540,1150)}{\c&H00F8BD38&\fscx104\fscy104\t(0,70,\fscx108\fscy108)}CLAUDE{\r} {\c&H00FFFFFF&}CODE{\r}
+Dialogue: 0,0:00:03.45,0:00:03.90,Cap,,0,0,0,,{\pos(540,1150)}{\c&H00FFFFFF&}CLAUDE{\r} {\c&H00F8BD38&\fscx104\fscy104\t(0,70,\fscx108\fscy108)}CODE{\r}
+Dialogue: 0,0:00:03.90,0:00:04.50,Cap,,0,0,0,,{\pos(540,1150)}{\c&H00F8BD38&\fscx104\fscy104\t(0,70,\fscx108\fscy108)}ANSWERS{\r}
+Dialogue: 0,0:00:04.50,0:00:04.75,Cap,,0,0,0,,{\pos(540,1150)}{\c&H00F8BD38&\fscx104\fscy104\t(0,70,\fscx108\fscy108)}THEN{\r} {\c&H00FFFFFF&}KEEPS{\r}
+Dialogue: 0,0:00:04.75,0:00:05.05,Cap,,0,0,0,,{\pos(540,1150)}{\c&H00FFFFFF&}THEN{\r} {\c&H00F8BD38&\fscx104\fscy104\t(0,70,\fscx108\fscy108)}KEEPS{\r}
+Dialogue: 0,0:00:05.05,0:00:05.55,Cap,,0,0,0,,{\pos(540,1150)}{\c&H00F8BD38&\fscx104\fscy104\t(0,70,\fscx108\fscy108)}SHIPPING{\r} {\c&H00FFFFFF&}WHILE{\r} {\c&H00FFFFFF&}I{\r}
+Dialogue: 0,0:00:05.55,0:00:05.80,Cap,,0,0,0,,{\pos(540,1150)}{\c&H00FFFFFF&}SHIPPING{\r} {\c&H00F8BD38&\fscx104\fscy104\t(0,70,\fscx108\fscy108)}WHILE{\r} {\c&H00FFFFFF&}I{\r}
+Dialogue: 0,0:00:05.80,0:00:05.95,Cap,,0,0,0,,{\pos(540,1150)}{\c&H00FFFFFF&}SHIPPING{\r} {\c&H00FFFFFF&}WHILE{\r} {\c&H00F8BD38&\fscx104\fscy104\t(0,70,\fscx108\fscy108)}I{\r}
+Dialogue: 0,0:00:05.95,0:00:06.52,Cap,,0,0,0,,{\pos(540,1150)}{\c&H00F8BD38&\fscx104\fscy104\t(0,70,\fscx108\fscy108)}WALK{\r}
+Dialogue: 0,0:00:08.20,0:00:08.42,Cap,,0,0,0,,{\pos(540,1150)}{\c&H00F8BD38&\fscx104\fscy104\t(0,70,\fscx108\fscy108)}THAT{\r} {\c&H00FFFFFF&}IS{\r} {\c&H00FFFFFF&}THE{\r} {\c&H00FFFFFF&}WHOLE{\r}
+Dialogue: 0,0:00:08.42,0:00:08.52,Cap,,0,0,0,,{\pos(540,1150)}{\c&H00FFFFFF&}THAT{\r} {\c&H00F8BD38&\fscx104\fscy104\t(0,70,\fscx108\fscy108)}IS{\r} {\c&H00FFFFFF&}THE{\r} {\c&H00FFFFFF&}WHOLE{\r}
+Dialogue: 0,0:00:08.52,0:00:08.62,Cap,,0,0,0,,{\pos(540,1150)}{\c&H00FFFFFF&}THAT{\r} {\c&H00FFFFFF&}IS{\r} {\c&H00F8BD38&\fscx104\fscy104\t(0,70,\fscx108\fscy108)}THE{\r} {\c&H00FFFFFF&}WHOLE{\r}
+Dialogue: 0,0:00:08.62,0:00:08.90,Cap,,0,0,0,,{\pos(540,1150)}{\c&H00FFFFFF&}THAT{\r} {\c&H00FFFFFF&}IS{\r} {\c&H00FFFFFF&}THE{\r} {\c&H00F8BD38&\fscx104\fscy104\t(0,70,\fscx108\fscy108)}WHOLE{\r}
+Dialogue: 0,0:00:08.90,0:00:09.52,Cap,,0,0,0,,{\pos(540,1150)}{\c&H00F8BD38&\fscx104\fscy104\t(0,70,\fscx108\fscy108)}IDEA?{\r}

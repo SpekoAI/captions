@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>speko captions - word-level captions for talking videos</title>
+<meta name="description" content="Open-source CLI and agent skill that turns a talking video into a social-ready 9:16 clip with word-level karaoke captions. Transcription by the Speko API, rendering by ffmpeg.">
+<style>
+@font-face { font-family: 'Geist'; src: url('fonts/Geist-Regular.woff2') format('woff2'); font-weight: 400; }
+@font-face { font-family: 'Geist'; src: url('fonts/Geist-Medium.woff2') format('woff2'); font-weight: 500; }
+@font-face { font-family: 'Geist'; src: url('fonts/Geist-Black.woff2') format('woff2'); font-weight: 900; }
+:root { --bg: #0e1512; --ink: #f2f5f3; --dim: #9db0a6; --accent: #2f6ad1; --line: #22302a; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 400 16px/1.6 'Geist', system-ui, sans-serif; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 0 24px; }
+header { display: flex; justify-content: space-between; align-items: center; padding: 28px 0; }
+.mark { font-weight: 900; font-size: 18px; letter-spacing: -0.02em; }
+.mark span { color: var(--accent); }
+nav a { color: var(--dim); text-decoration: none; margin-left: 24px; font-size: 15px; }
+nav a:hover { color: var(--ink); }
+main { padding: 56px 0 24px; }
+h1 { font-weight: 900; font-size: clamp(34px, 6vw, 52px); line-height: 1.08; letter-spacing: -0.03em; max-width: 640px; }
+h1 em { color: var(--accent); font-style: normal; }
+.sub { color: var(--dim); margin: 20px 0 40px; max-width: 560px; font-size: 18px; }
+pre { background: #0a100d; border: 1px solid var(--line); border-radius: 10px; padding: 20px 22px; overflow-x: auto; font: 500 14px/1.7 ui-monospace, 'SF Mono', Menlo, monospace; }
+pre b { color: var(--accent); font-weight: 500; }
+pre .c { color: var(--dim); }
+.row { display: flex; gap: 14px; margin: 28px 0 64px; flex-wrap: wrap; }
+.btn { display: inline-block; padding: 12px 22px; border-radius: 8px; text-decoration: none; font-weight: 500; font-size: 15px; }
+.btn.primary { background: var(--accent); color: #fff; }
+.btn.ghost { border: 1px solid var(--line); color: var(--ink); }
+.btn:hover { filter: brightness(1.1); }
+h2 { font-weight: 900; font-size: 22px; letter-spacing: -0.02em; margin: 56px 0 16px; }
+.frames { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.frames img { width: 100%; border-radius: 10px; border: 1px solid var(--line); display: block; }
+.frames figcaption { color: var(--dim); font-size: 13px; margin-top: 8px; }
+table { width: 100%; border-collapse: collapse; margin: 8px 0 24px; }
+td { padding: 10px 12px 10px 0; border-bottom: 1px solid var(--line); vertical-align: top; font-size: 15px; }
+td:first-child { color: var(--ink); font-weight: 500; white-space: nowrap; padding-right: 28px; }
+td:last-child { color: var(--dim); }
+footer { color: var(--dim); font-size: 14px; padding: 48px 0 40px; border-top: 1px solid var(--line); margin-top: 72px; }
+footer a { color: var(--dim); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="mark">speko <span>captions</span></div>
+  <nav>
+    <a href="https://github.com/SpekoAI/captions">GitHub</a>
+    <a href="https://speko.ai">speko.ai</a>
+  </nav>
+</header>
+
+<main>
+  <h1>Word-level captions for talking videos. <em>One command.</em></h1>
+  <p class="sub">Open-source CLI and coding-agent skill. Drop in a video, get
+  back a 1080x1920 clip with karaoke captions, hook text, speaker tags, and
+  normalized audio. Transcription runs through the
+  <a href="https://speko.ai" style="color:var(--accent)">Speko API</a>;
+  ffmpeg does the rest on your machine.</p>
+
+<pre><b>$</b> export SPEKO_API_KEY=sk_...        <span class="c"># key at speko.ai</span>
+<b>$</b> git clone https://github.com/SpekoAI/captions && cd captions && uv sync
+<b>$</b> uv run speko-captions render your-video.mp4
+<span class="c">out/your-video.captioned.mp4  1080x1920 h264 aac -14 LUFS</span></pre>
+
+  <div class="row">
+    <a class="btn primary" href="https://github.com/SpekoAI/captions">View on GitHub</a>
+    <a class="btn ghost" href="https://speko.ai">Get a Speko API key</a>
+  </div>
+
+  <h2>What a render looks like</h2>
+  <figure class="frames">
+    <img src="assets/demo-1.jpg" alt="hook text over the opening frame">
+    <img src="assets/demo-2.jpg" alt="karaoke captions with the active word highlighted">
+    <img src="assets/demo-3.jpg" alt="captions later in the clip, safe-zone placed">
+    <figcaption>Frames from the bundled sample. Its voice is synthesized by
+    the same Speko API; run <code>samples/make_sample.py</code> to reproduce.</figcaption>
+  </figure>
+
+  <h2>How it works</h2>
+  <table>
+    <tr><td>Transcript</td><td>Audio goes to Speko /v1/transcribe. The router benchmarks STT providers continuously and picks the lane per request.</td></tr>
+    <tr><td>Word timing</td><td>faster-whisper aligns per-word timestamps locally. Timing only; the Speko transcript stays the text truth.</td></tr>
+    <tr><td>Captions</td><td>Phrase-aware pages, active-word highlight, filler stripping, hooks, speaker tags. Placement clears TikTok, Reels, and Shorts UI.</td></tr>
+    <tr><td>Render</td><td>ffmpeg: lanczos upscale to 9:16, subtitle burn, denoise, two-pass loudness to -14 LUFS, faststart mp4.</td></tr>
+    <tr><td>Agents</td><td>SKILL.md turns a coding agent into the editor: it reconciles the transcript, writes the config, and frame-QAs its own render.</td></tr>
+  </table>
+</main>
+
+<footer>
+  MIT licensed. Built by <a href="https://speko.ai">Speko</a>, the voice AI
+  gateway. Geist font by Vercel under the SIL OFL 1.1.
+</footer>
+
+</div>
+</body>
+</html>
