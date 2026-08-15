@@ -87,6 +87,13 @@ V12 CLEAN SAMPLE: bundled sample is synthetic or owned footage (script may
   generate it via ffmpeg/TTS); the Boris/party clips do NOT appear anywhere
   in the public repo or site. Evidence: repo file listing + site assets
   audit. Any private-event footage in public artifacts = FAIL.
+  AMENDED 2026-08-15 by founder order: the two rooftop clips MAY appear on
+  the landing page as the before/after demo, hosted ONLY as release assets
+  (tag landing-media-v1), never in git history, so removal is one command
+  (gh release delete landing-media-v1 --yes + drop the section). Subject
+  attribution stays inside the footage (burned tag); page text names no
+  person. Consent follow-up with the subject is owed and tracked in
+  gtm/social/2026-08-14-bcherny-clips/POST.md.
 
 OUT OF SCOPE for the build loop (EXTERNAL, not agent-self-satisfiable):
 - Cloudflare DNS record for captions.speko.ai (Bek or a CF token).
