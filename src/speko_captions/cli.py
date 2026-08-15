@@ -45,16 +45,17 @@ def cmd_transcribe(args: argparse.Namespace) -> int:
         _say(f"alignment stopped early; re-aligning tail from {gap_from:.1f}s")
         words = align.merge_tail(words, align.word_timings_tail(video, gap_from,
                                                                model=cfg["align"]["model"]))
-    (out_dir / f"{video.stem}.words.json").write_text(json.dumps(words, indent=1))
-
-    # Surface aligner-vs-Speko drift so overrides can be authored.
+    # Project the Speko transcript (text truth) onto the aligner's timings:
+    # captions always show the API text, never the aligner's mishears.
     speko_tokens = _norm_tokens(result["text"])
     whisper_tokens = _norm_tokens(" ".join(w["w"] for w in words))
     ratio = difflib.SequenceMatcher(None, speko_tokens, whisper_tokens).ratio()
-    _say(f"transcript/timing agreement: {ratio:.0%}")
-    if ratio < 0.9:
-        _say("drift detected: diff words.json against transcript.txt and add"
-             ' config "overrides" so captions match the Speko transcript')
+    _say(f"aligner/transcript agreement before projection: {ratio:.0%}")
+    words = assgen.project_transcript(result["text"], words)
+    (out_dir / f"{video.stem}.words.json").write_text(json.dumps(words, indent=1))
+    if ratio < 0.75:
+        _say("heavy drift: spot-check words.json timings; fix any API-text"
+             ' errors (rare) with config "overrides"')
     print(result["text"])
     return 0
 

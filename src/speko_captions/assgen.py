@@ -3,6 +3,7 @@
 No I/O, no network, no ffmpeg - fully unit-testable.
 """
 
+import difflib
 import re
 
 
@@ -13,35 +14,98 @@ def hex_to_ass(color: str) -> str:
     return f"&H00{b}{g}{r}&".upper()
 
 
+def _bare(token: str) -> str:
+    return token.strip(".,?!\"'").lower()
+
+
+def _redistribute(slots: list[dict], tokens: list[str],
+                  span: tuple[float, float]) -> list[dict]:
+    """Fit `tokens` into the time window `span`, weighting by token length.
+    Equal counts keep each slot's own timing."""
+    if not tokens:
+        return []
+    if len(slots) == len(tokens):
+        return [{**s, "w": t} for s, t in zip(slots, tokens)]
+    s0, e0 = span
+    p = min((s.get("p", 1.0) for s in slots), default=0.5)
+    weights = [max(1, len(t)) for t in tokens]
+    total = sum(weights)
+    dur = max(e0 - s0, 0.05 * len(tokens))
+    out, cur = [], s0
+    for t, wt in zip(tokens, weights):
+        d = dur * wt / total
+        out.append({"w": t, "s": round(cur, 3), "e": round(cur + d, 3), "p": p})
+        cur += d
+    out[-1]["e"] = round(max(e0, out[-1]["s"] + 0.05), 3)
+    return out
+
+
+def project_transcript(text: str, words: list[dict]) -> list[dict]:
+    """Project the API transcript onto the aligner's word timings.
+
+    The returned words carry the transcript's tokens (text truth) with the
+    aligner's timestamps. Aligner-only words merge into their neighbors;
+    transcript-only words share the nearest silence or their neighbor's slot.
+    """
+    if not text.strip() or not words:
+        return words
+    tokens = text.split()
+    a = [_bare(w["w"]) for w in words]
+    b = [_bare(t) for t in tokens]
+    sm = difflib.SequenceMatcher(None, a, b, autojunk=False)
+    out: list[dict] = []
+    for tag, i1, i2, j1, j2 in sm.get_opcodes():
+        if tag == "equal":
+            out.extend({**words[i1 + k], "w": tokens[j1 + k]} for k in range(i2 - i1))
+        elif tag == "replace":
+            span = (words[i1]["s"], words[i2 - 1]["e"])
+            out.extend(_redistribute(words[i1:i2], tokens[j1:j2], span))
+        elif tag == "delete":
+            if out:
+                out[-1]["e"] = words[i2 - 1]["e"]
+        elif tag == "insert":
+            prev_end = out[-1]["e"] if out else (words[0]["s"] if words else 0.0)
+            next_start = words[i1]["s"] if i1 < len(words) else prev_end
+            if next_start - prev_end > 0.1 * (j2 - j1):
+                out.extend(_redistribute([], tokens[j1:j2], (prev_end, next_start)))
+            elif out:
+                out[-1] = {**out[-1], "w": out[-1]["w"] + " " + " ".join(tokens[j1:j2])}
+            else:
+                out.extend(_redistribute([], tokens[j1:j2],
+                                         (prev_end, prev_end + 0.3 * (j2 - j1))))
+    return out
+
+
 def apply_overrides(words: list[dict], overrides: list[dict],
                     filler_strip: list[float]) -> list[dict]:
-    """Substitute aligner mishears toward the Speko transcript, then hide
-    filler words (their time merges into the previous word)."""
-    txt = [w["w"] for w in words]
+    """Substitute transcript fixes (every occurrence, any length change),
+    then hide filler words (their time merges into the previous word)."""
+    out = [dict(w) for w in words]
 
     for rule in overrides:
         src = [s.lower() for s in rule["from"]]
         dst = list(rule["to"])
         n = len(src)
-        for i in range(len(txt) - n + 1):
-            window = [t.lower().strip(".,?!") for t in txt[i:i + n]]
-            if window == src:
-                for j, t in enumerate(dst):
-                    txt[i + j] = t
-                for j in range(len(dst), n):
-                    words[i + len(dst) - 1]["e"] = words[i + j]["e"]
-                    txt[i + j] = ""
-                break
+        res: list[dict] = []
+        i = 0
+        while i < len(out):
+            window = [_bare(x["w"]) for x in out[i:i + n]]
+            if len(window) == n and window == src:
+                span = (out[i]["s"], out[i + n - 1]["e"])
+                res.extend(_redistribute(out[i:i + n], dst, span))
+                i += n
+            else:
+                res.append(out[i])
+                i += 1
+        out = res
 
     merged: list[dict] = []
-    for w, t in zip(words, txt):
-        if not t:
-            continue
+    for w in out:
         if any(abs(w["s"] - ft) < 0.05 for ft in filler_strip):
             if merged:
                 merged[-1]["e"] = w["e"]
             continue
-        merged.append({**w, "w": t})
+        merged.append(w)
     return merged
 
 

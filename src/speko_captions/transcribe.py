@@ -9,6 +9,7 @@ import os
 import subprocess
 import tempfile
 import time
+import urllib.error
 import urllib.request
 from pathlib import Path
 
@@ -29,6 +30,13 @@ def api_credentials() -> tuple[str, str]:
 
 def extract_audio(video: str | Path, out_dir: str | Path | None = None) -> Path:
     """Extract mono 16kHz mp3 (the container every STT lane accepts)."""
+    has_audio = subprocess.run(
+        ["ffprobe", "-v", "error", "-select_streams", "a", "-show_entries",
+         "stream=codec_type", "-of", "csv=p=0", str(video)],
+        capture_output=True, text=True, check=False,
+    ).stdout.strip()
+    if not has_audio:
+        raise SpekoError(f"{video} has no audio stream; nothing to transcribe")
     out_dir = Path(out_dir) if out_dir else Path(tempfile.mkdtemp(prefix="speko-captions-"))
     out = out_dir / (Path(video).stem + ".16k.mp3")
     subprocess.run(
@@ -71,6 +79,12 @@ def _attempt(base: str, key: str, data: bytes, language: str, pin: str | None,
         if done and done.get("text", "").strip():
             return done
         return SpekoError(f"empty transcript from lane pin={pin}: {body[:200]}")
+    except urllib.error.HTTPError as e:
+        if e.code in (401, 403):
+            raise SpekoError(
+                f"the API rejected the key ({e.code}); check SPEKO_API_KEY"
+            ) from e
+        return e
     except Exception as e:  # noqa: BLE001 - network layer; caller decides
         return e
 

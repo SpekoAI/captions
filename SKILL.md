@@ -11,14 +11,25 @@ PATH, `uv`, and `SPEKO_API_KEY` set (keys at https://speko.ai).
 
 ## Pipeline
 
+### 0. Get the tool
+
+All commands run from the repo root:
+
+```bash
+git clone https://github.com/SpekoAI/captions && cd captions && uv sync
+```
+
+If the repo is already cloned, `cd` into it. Videos elsewhere on disk are
+fine; pass absolute paths.
+
 ### 1. Probe
 
 ```bash
 ffprobe -v error -show_entries stream=width,height:format=duration -of csv <video>
 ```
 
-Note the duration. Vertical sources render best; landscape sources still work
-(they upscale to 1080x1920 letterboxed by the caption safe areas).
+Note the duration. Vertical sources render best; landscape sources still
+work (they upscale to 1080x1920).
 
 ### 2. Transcribe + align
 
@@ -26,26 +37,44 @@ Note the duration. Vertical sources render best; landscape sources still work
 uv run speko-captions transcribe <video> -o out
 ```
 
-Artifacts in `out/`: `<stem>.transcript.txt` (Speko API text - this is the
+Artifacts in `out/`: `<stem>.transcript.txt` (Speko API text - the
 transcript truth), `<stem>.transcript.json` (provider/model that ran it),
-`<stem>.words.json` (word timings from the local aligner).
+`<stem>.words.json` (per-word timings, already projected onto the Speko
+text - captions show the API transcript, not the aligner's hearing).
 
-### 3. Reconcile (agent judgment)
+### 3. Review the words (agent judgment)
 
-Read `transcript.txt` and `words.json`. Where the aligner's words differ from
-the Speko transcript (names, jargon, product terms), write `overrides` in the
-config so the burned captions match the Speko text. Where the speaker false-starts
-or drops filler ("like", "you know"), add the word start times to
-`filler_strip`. The CLI prints an agreement score; below 90% means do this
-carefully.
+Read `transcript.txt` and `words.json`. Two things to author:
+
+- `overrides` fix words that are wrong IN THE API TEXT itself (rare:
+  product names, code-switching). Shape, matching, and semantics:
+
+  ```json
+  "overrides": [{"from": ["speco"], "to": ["Speko"]}]
+  ```
+
+  `from` matches a consecutive run of words in `words.json`
+  (case-insensitive, ignoring ,.?! punctuation); every occurrence is
+  replaced by `to`, which may be longer or shorter - timing redistributes
+  across the matched span.
+
+- `filler_strip` hides false starts and fillers from display (audio is
+  untouched). List the exact `s` start times from `words.json`:
+
+  ```json
+  "filler_strip": [0.98, 2.14]
+  ```
+
+  Never strip a comparative "like" ("anything like that") or a quotative
+  "I'm like" - only dead fillers.
 
 ### 4. Configure
 
-Write `<video>.config.json`. Schema and defaults: `src/speko_captions/config.py`
-(documented in README). Minimum worth setting:
+Write `<video>.config.json`. The full schema with defaults is in the README
+"Config" section. Minimum worth setting:
 
 - `hook.text`: 5-8 word on-screen hook, `\N` for a line break, shown ~2.2s.
-- `tags`: speaker name lower-thirds with start/duration.
+- `tags`: speaker name lower-thirds with `start`/`dur` seconds.
 - `overrides` + `filler_strip` from step 3.
 - `caption.active_color` if the default does not fit the footage.
 
@@ -56,12 +85,18 @@ uv run speko-captions render <video> -c <video>.config.json -o out
 ```
 
 Output: `out/<stem>.captioned.mp4` (1080x1920, H.264, AAC, -14 LUFS,
-faststart) plus QA frames in `out/qa/`.
+faststart) plus three QA frames in `out/qa/`.
 
 ### 6. QA loop (MANDATORY - do not skip)
 
-Spawn a subagent to review the QA frames with fresh eyes. Give it the frames
-in `out/qa/` and this checklist; render again after every fix until it passes:
+Extract extra frames at any timestamps you want to inspect:
+
+```bash
+uv run speko-captions frames out/<stem>.captioned.mp4 -t 1,4.5,9 -o out/qa
+```
+
+Spawn a subagent to review the frames in `out/qa/` with fresh eyes. Give it
+this checklist; re-render after every fix until it passes clean:
 
 - Captions inside the safe area (block center ~y=1150 on 1920): not over a
   face, not under platform UI.
@@ -71,10 +106,10 @@ in `out/qa/` and this checklist; render again after every fix until it passes:
   a page ("LIKE" alone = fix `filler_strip`).
 - Hook readable, inside side margins, gone by ~2.5s.
 - Tags appear only while that person speaks.
-- Names and product terms match the Speko transcript exactly.
+- Names and product terms match the transcript exactly.
 
-Then listen once end to end (or extract audio peaks) to confirm speech is
-intelligible and the ending is not cut mid-word.
+Then listen once end to end to confirm speech is intelligible and the
+ending is not cut mid-word.
 
 ### 7. Deliver
 
@@ -84,9 +119,10 @@ copy is out of scope for this skill; captions belong to the video.
 ## Failure modes
 
 - `SPEKO_API_KEY is not set`: get a key at https://speko.ai, export it.
-- Empty transcript: retry; if a pinned provider fails, drop `stt.pin` and let
-  the router route.
-- Aligner stops early on crosstalk: the CLI re-aligns the tail automatically;
-  verify the last words of `words.json` reach the clip end.
-- Font missing: the repo bundles Geist in `fonts/`; pass nothing, it is the
-  default `fontsdir`.
+- `the API rejected the key`: the key is wrong or revoked; no retry helps.
+- Empty transcript: the CLI already falls back across STT lanes; if all
+  fail, retry once, then check api.speko.dev status.
+- Aligner stops early on crosstalk: the CLI re-aligns the tail
+  automatically; verify the last words of `words.json` reach the clip end.
+- `has no audio stream`: the input is a silent video; nothing to caption.
+- Windows is unsupported; use WSL.

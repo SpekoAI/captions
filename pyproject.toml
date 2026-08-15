@@ -28,6 +28,9 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/speko_captions"]
 
+[tool.hatch.build.targets.wheel.force-include]
+"fonts" = "speko_captions/fonts"
+
 [tool.ruff]
 line-length = 110
 target-version = "py310"

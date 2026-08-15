@@ -1,10 +1,6 @@
 {
   "hook": {"text": "CAPTION ANY VIDEO\\NWITH ONE COMMAND", "seconds": 2.2},
   "caption": {"active_color": "#2f6ad1"},
-  "overrides": [
-    {"from": ["specco"], "to": ["Speko"]},
-    {"from": ["social", "-ready"], "to": ["social-ready"]},
-    {"from": ["word", "-level"], "to": ["word-level"]}
-  ],
+  "overrides": [{"from": ["speco"], "to": ["Speko"]}],
   "case_keep": ["ffmpeg", "Speko"]
 }

@@ -12,6 +12,8 @@ Landing page: [captions.speko.ai](https://captions.speko.ai)
 
 ## Quickstart
 
+macOS and Linux (Windows: use WSL).
+
 1. Install ffmpeg: `brew install ffmpeg` (macOS) or `apt install ffmpeg` (Linux).
 2. Install [uv](https://docs.astral.sh/uv/): `curl -LsSf https://astral.sh/uv/install.sh | sh`
 3. Get a Speko API key at [speko.ai](https://speko.ai).
@@ -30,8 +32,8 @@ samples/make_sample.py` generates one, voiced by the same Speko API.
   request. Pin one with `stt.pin` if you must.
 - **Word-level timing locally.** faster-whisper supplies timestamps only -
   the karaoke highlight needs per-word times, which batch STT APIs do not
-  return. It never overrides the Speko transcript text; you reconcile
-  differences with config `overrides`.
+  return. The Speko transcript is then projected onto those timings, so the
+  burned captions always show the API text, never the aligner's mishears.
 - **Editor-grade captions.** Phrase-aware pages (max words, max chars,
   silence and punctuation breaks), active-word color + scale pop, filler-word
   stripping, hook text, speaker tags, safe-zone placement for TikTok, Reels,
@@ -48,13 +50,37 @@ Everything an editor touches lives in one JSON file per video:
   "hook": {"text": "MY AGENTS CALL ME\\NON THE PHONE", "seconds": 2.2},
   "tags": [{"text": "JANE DOE", "subtext": "CTO, EXAMPLE", "start": 12.0, "dur": 3.0}],
   "filler_strip": [0.98, 2.14],
-  "overrides": [{"from": ["cloud", "code"], "to": ["Claude", "Code"]}],
+  "overrides": [{"from": ["speco"], "to": ["Speko"]}],
   "caption": {"active_color": "#38BDF8", "max_words": 4},
   "case_keep": ["IDEs", "iMessage"]
 }
 ```
 
-Full schema with defaults and comments: `src/speko_captions/config.py`.
+Every key, with its default:
+
+| Key | Default | Meaning |
+|---|---|---|
+| `caption.font` | `"Geist Black"` | caption font (bundled in `fonts/`) |
+| `caption.size` | `88` | caption font size on the 1080x1920 canvas |
+| `caption.y` | `1150` | caption block center; clears TikTok/Reels/Shorts UI |
+| `caption.text_color` | `"#FFFFFF"` | inactive word color |
+| `caption.active_color` | `"#38BDF8"` | spoken-word highlight color |
+| `caption.outline` / `caption.shadow` | `7` / `2` | black outline and shadow weight |
+| `caption.max_words` / `caption.max_chars` | `4` / `18` | page size caps |
+| `caption.gap_break` | `0.55` | silence (s) that forces a new page |
+| `caption.case` | `"upper"` | `upper`, `keep`, or `lower` |
+| `caption.pop` | `1.08` | active-word scale; `1.0` disables |
+| `hook` | `null` | `{"text", "seconds", "y", "size"}`; `\N` breaks lines |
+| `tags` | `[]` | `{"text", "subtext", "start", "dur"}` lower-thirds |
+| `filler_strip` | `[]` | start times (s) of words to hide from display |
+| `overrides` | `[]` | `{"from": [...], "to": [...]}` word substitutions; every occurrence, any length |
+| `case_keep` | `[]` | words whose casing survives the case transform |
+| `audio.target_i` / `target_tp` / `target_lra` | `-14` / `-1.5` / `11` | loudness normalization targets |
+| `audio.highpass` / `denoise` / `presence_eq` | `80` / `true` / `true` | speech cleanup chain |
+| `audio.fade_out` / `video.fade_out` | `0.25` / `0.29` | end fades (s) |
+| `video.width` / `height` / `crf` / `sharpen` | `1080` / `1920` / `18` / `true` | export geometry and quality |
+| `stt.language` / `stt.pin` | `"en"` / `null` | transcription intent; pin forces one STT lane |
+| `align.model` | `"small.en"` | faster-whisper model for timings |
 
 ## Agent-first
 

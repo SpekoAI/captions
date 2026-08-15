@@ -5,7 +5,30 @@ import re
 import subprocess
 from pathlib import Path
 
-FONTS_DIR = Path(__file__).resolve().parents[2] / "fonts"
+
+def _fonts_dir() -> Path:
+    packaged = Path(__file__).resolve().parent / "fonts"   # wheel/uvx install
+    if packaged.is_dir():
+        return packaged
+    checkout = Path(__file__).resolve().parents[2] / "fonts"  # repo checkout
+    if checkout.is_dir():
+        return checkout
+    raise RuntimeError(
+        "bundled fonts directory not found; reinstall speko-captions or pass fonts_dir"
+    )
+
+
+def escape_filter_path(path: str) -> str:
+    """Escape a path for use as an option value inside an ffmpeg filtergraph.
+
+    Two parser levels: the option value first (backslash, colon, quote), then
+    the filtergraph itself (backslash, comma, semicolon, brackets, quote).
+    """
+    s = str(path)
+    s = s.replace("\\", "\\\\").replace(":", "\\:").replace("'", "\\'")
+    s = (s.replace("\\", "\\\\").replace(",", "\\,").replace(";", "\\;")
+         .replace("[", "\\[").replace("]", "\\]").replace("'", "\\'"))
+    return s
 
 
 def probe(video: str | Path) -> dict:
@@ -46,14 +69,17 @@ def render(video: str | Path, ass_path: str | Path, cfg: dict, out_path: str | P
            fonts_dir: str | Path | None = None) -> Path:
     v = cfg["video"]
     a = cfg["audio"]
-    fonts = str(fonts_dir or FONTS_DIR)
+    fonts = str(fonts_dir) if fonts_dir else str(_fonts_dir())
     dur = probe(video)["duration"]
     meas = measure_loudness(video, cfg)
 
     vf = [f"scale={v['width']}:{v['height']}:flags=lanczos"]
     if v["sharpen"]:
         vf.append("unsharp=5:5:0.35:5:5:0.0")
-    vf.append(f"subtitles={ass_path}:fontsdir={fonts}")
+    vf.append(
+        f"subtitles=filename={escape_filter_path(ass_path)}"
+        f":fontsdir={escape_filter_path(fonts)}"
+    )
     if v["fade_out"] > 0:
         vf.append(f"fade=t=out:st={max(0, dur - v['fade_out']):.2f}:d={v['fade_out']}")
 
