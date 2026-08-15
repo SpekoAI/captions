@@ -62,7 +62,7 @@ V7 CI: GitHub Actions workflow runs lint (ruff) + tests on push/PR; main is
 V8 PUBLIC REPO: github.com/SpekoAI/captions is public, MIT LICENSE, README
   quickstart <=10 numbered steps (install ffmpeg; get a Speko API key at
   speko.ai - link; set SPEKO_API_KEY; run). Evidence: repo URL public in
-  incognito curl; step count; `grep -ri voiceforge` = 0 hits; rebrand-guard
+  incognito curl; step count; case-insensitive grep for the pre-rebrand product name = 0 hits; rebrand-guard
   scan clean logged.
 
 V9 LANDING: captions.speko.ai returns 200 HTML: bg #0e1512, accent #2f6ad1,
