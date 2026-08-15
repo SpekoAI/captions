@@ -39,3 +39,7 @@ EXTERNAL (out of the build's hands): the Cloudflare CNAME for
 captions.speko.ai. Until it exists, the site lives at
 https://spekoai.github.io/captions/ and the repo's Pages custom domain
 stays unset (setting it early is what broke V9 the first time).
+
+EXTERNAL cleared 2026-08-15: Cloudflare CNAME captions -> spekoai.github.io
+created (DNS-only), Pages cert approved, HTTPS enforced;
+https://captions.speko.ai serves the landing. V9 fully DONE.
