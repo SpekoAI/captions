@@ -7,7 +7,7 @@ description: Turn a talking video into a social-ready 9:16 clip with word-level 
 
 You drive this pipeline with the CLI. Do not read the engine source; the
 commands and artifacts below are the interface. Requirements: `ffmpeg` on
-PATH, `uv`, and `SPEKO_API_KEY` set (keys at https://speko.ai).
+PATH, `uv`, and `SPEKO_API_KEY` set (keys at https://speko.com).
 
 ## Pipeline
 
@@ -118,7 +118,7 @@ copy is out of scope for this skill; captions belong to the video.
 
 ## Failure modes
 
-- `SPEKO_API_KEY is not set`: get a key at https://speko.ai, export it.
+- `SPEKO_API_KEY is not set`: get a key at https://speko.com, export it.
 - `the API rejected the key`: the key is wrong or revoked; no retry helps.
 - Empty transcript: the CLI already falls back across STT lanes; if all
   fail, retry once, then check api.speko.dev status.
