@@ -4,7 +4,7 @@
 
 Turn a talking video into a social-ready 9:16 clip with word-level karaoke
 captions. One CLI, three stages: transcription by the
-[Speko API](https://speko.ai), word timings by faster-whisper (local), render
+[Speko API](https://speko.com), word timings by faster-whisper (local), render
 by ffmpeg. Built agent-first: `SKILL.md` makes any coding agent a video
 editor with a review loop.
 
@@ -16,7 +16,7 @@ macOS and Linux (Windows: use WSL).
 
 1. Install ffmpeg: `brew install ffmpeg` (macOS) or `apt install ffmpeg` (Linux).
 2. Install [uv](https://docs.astral.sh/uv/): `curl -LsSf https://astral.sh/uv/install.sh | sh`
-3. Get a Speko API key at [speko.ai](https://speko.ai).
+3. Get a Speko API key at [speko.com](https://speko.com).
 4. `export SPEKO_API_KEY=sk_...`
 5. `git clone https://github.com/SpekoAI/captions && cd captions && uv sync`
 6. `uv run speko-captions render your-video.mp4`

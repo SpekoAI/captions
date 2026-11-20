@@ -23,7 +23,7 @@ class SpekoError(RuntimeError):
 def api_credentials() -> tuple[str, str]:
     key = os.environ.get("SPEKO_API_KEY", "")
     if not key:
-        raise SpekoError("SPEKO_API_KEY is not set. Get a key at https://speko.ai")
+        raise SpekoError("SPEKO_API_KEY is not set. Get a key at https://speko.com")
     base = os.environ.get("SPEKO_API_BASE", DEFAULT_BASE).rstrip("/")
     return base, key
 
